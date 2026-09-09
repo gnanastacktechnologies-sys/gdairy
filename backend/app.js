@@ -41,12 +41,21 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/settings', settingsRoutes);
 
-// Handle 404 routes
-app.use('*', (req, res) => {
+// Serve Frontend Static Assets in Production
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendDistPath));
+
+// API 404 handler for unhandled /api routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     message: `API Route ${req.originalUrl} not found`
   });
+});
+
+// SPA routing fallback (serves index.html for React Router frontend pages)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 // Centralized error handler
