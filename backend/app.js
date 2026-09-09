@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import milkRoutes from './routes/milkRoutes.js';
@@ -41,10 +42,6 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/settings', settingsRoutes);
 
-// Serve Frontend Static Assets in Production
-const frontendDistPath = path.join(__dirname, '../frontend/dist');
-app.use(express.static(frontendDistPath));
-
 // API 404 handler for unhandled /api routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({
@@ -53,10 +50,31 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// SPA routing fallback (serves index.html for React Router frontend pages)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendDistPath, 'index.html'));
-});
+// Serve Frontend Static Assets in Production
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+const indexPath = path.join(frontendDistPath, 'index.html');
+
+if (fs.existsSync(indexPath)) {
+  app.use(express.static(frontendDistPath));
+
+  // SPA routing fallback (serves index.html for React Router frontend pages)
+  app.get('*', (req, res) => {
+    res.sendFile(indexPath);
+  });
+} else {
+  app.get('*', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>GDairy API Server</title></head>
+        <body style="font-family: system-ui, sans-serif; padding: 2rem; text-align: center; color: #1e293b;">
+          <h2>🐄 GDairy Backend API Server</h2>
+          <p>API is running smoothly. Frontend build status: <em>Building or not found at frontend/dist</em>.</p>
+        </body>
+      </html>
+    `);
+  });
+}
 
 // Centralized error handler
 app.use(errorHandler);
