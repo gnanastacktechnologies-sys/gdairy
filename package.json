@@ -4,18 +4,11 @@
   "description": "GDairy - Milk Collection & Billing Management System",
   "private": true,
   "license": "MIT",
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "scripts": {
-    "install:all": "npm install --prefix backend && npm install --prefix frontend",
-    "build:frontend": "npm run build --prefix frontend",
-    "build": "npm run install:all && npm run build:frontend",
-    "postinstall": "npm run build:frontend",
-    "start": "npm start --prefix backend",
-    "dev:backend": "npm run dev --prefix backend",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "seed": "npm run seed --prefix backend"
+    "build": "cd backend && npm install && cd ../frontend && npm install && npm run build",
+    "start": "cd backend && npm start",
+    "seed": "cd backend && npm run seed",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev"
   }
 }
