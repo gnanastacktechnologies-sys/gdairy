@@ -57,57 +57,12 @@ const seedAdmin = async () => {
       console.log('[GDairy Seed] Default retention settings created (3 Months)');
     }
 
-    // Seed sample standard user if none exists
-    let sampleUser = await User.findOne({ username: 'farmer1' });
-    if (!sampleUser) {
-      sampleUser = await User.create({
-        name: 'Ramesh Kumar',
-        username: 'farmer1',
-        password: 'userpassword123',
-        userCode: 'FARM-001',
-        phone: '9876500001',
-        role: 'user',
-        status: 'active'
-      });
-      console.log('[GDairy Seed] Sample user created: username "farmer1", password "userpassword123"');
+    // Clean up sample non-admin farmers/users and sample milk collection records
+    const deletedUsers = await User.deleteMany({ role: { $ne: 'admin' } });
+    const deletedRecords = await MilkEntry.deleteMany({});
+    console.log(`[GDairy Seed] Cleaned up sample records: ${deletedUsers.deletedCount} sample users & ${deletedRecords.deletedCount} milk records removed.`);
 
-      // Seed sample milk entries for the past 14 days so charts and dashboards show live data immediately
-      const today = new Date();
-      const sampleEntries = [];
-
-      for (let i = 14; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-
-        const morningLitres = Math.round((5 + Math.random() * 3) * 100) / 100;
-        const eveningLitres = Math.round((4 + Math.random() * 2.5) * 100) / 100;
-        const price = 50; // ₹50/L
-
-        sampleEntries.push({
-          user: sampleUser._id,
-          date: dateStr,
-          session: 'morning',
-          litres: morningLitres,
-          milkPricePerLitre: price,
-          totalAmount: Math.round(morningLitres * price * 100) / 100
-        });
-
-        sampleEntries.push({
-          user: sampleUser._id,
-          date: dateStr,
-          session: 'evening',
-          litres: eveningLitres,
-          milkPricePerLitre: price,
-          totalAmount: Math.round(eveningLitres * price * 100) / 100
-        });
-      }
-
-      await MilkEntry.insertMany(sampleEntries);
-      console.log(`[GDairy Seed] Seeded ${sampleEntries.length} initial milk collection records for demonstration.`);
-    }
-
-    console.log('[GDairy Seed] Seeding completed successfully!');
+    console.log('[GDairy Seed] Seeding completed successfully! Only Admin account exists in database.');
     process.exit(0);
   } catch (error) {
     console.error(`[GDairy Seed Error] ${error.message}`);
