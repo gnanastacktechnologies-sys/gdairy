@@ -2,10 +2,12 @@ import axios from 'axios';
 
 const getApiBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+  if (envUrl) {
     return envUrl;
   }
-  // Dynamically resolve server IP from browser URL so physical mobile phones on LAN can connect seamlessly
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return `${window.location.origin}/api`;
+  }
   const hostname = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost';
   return `http://${hostname}:5000/api`;
 };
