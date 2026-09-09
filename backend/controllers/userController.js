@@ -54,7 +54,7 @@ export const getUsers = async (req, res, next) => {
 // @access  Private/Admin
 export const createUser = async (req, res, next) => {
   try {
-    const { name, username, password, phone, status, dairyName, permissions, userCode, createdAt } = req.body;
+    const { name, username, password, phone, status, dairyName, permissions, userCode, createdAt, joiningDate } = req.body;
 
     if (!name || !username || !password) {
       return res.status(400).json({
@@ -90,6 +90,9 @@ export const createUser = async (req, res, next) => {
       permissions: permissions || { canAddMilk: true, canEditMilk: true, canDeleteMilk: false, canCreditAccount: true }
     };
 
+    if (joiningDate) {
+      userData.joiningDate = new Date(joiningDate);
+    }
     if (createdAt) {
       userData.createdAt = new Date(createdAt);
     }
@@ -126,7 +129,7 @@ export const getUserById = async (req, res, next) => {
 // @access  Private/Admin
 export const updateUser = async (req, res, next) => {
   try {
-    const { name, username, phone, status, dairyName, permissions, userCode, createdAt } = req.body;
+    const { name, username, phone, status, dairyName, permissions, userCode, createdAt, joiningDate } = req.body;
     const user = await User.findById(req.params.id);
 
     if (!user) {
@@ -150,6 +153,7 @@ export const updateUser = async (req, res, next) => {
     if (phone !== undefined) user.phone = phone;
     if (status) user.status = status;
     if (dairyName !== undefined) user.dairyName = dairyName.trim();
+    if (joiningDate) user.joiningDate = new Date(joiningDate);
     if (createdAt) user.createdAt = new Date(createdAt);
     if (permissions) user.permissions = { ...user.permissions, ...permissions };
 

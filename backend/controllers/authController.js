@@ -63,6 +63,7 @@ export const login = async (req, res, next) => {
         role: user.role,
         status: user.status,
         createdAt: user.createdAt,
+        joiningDate: user.joiningDate || user.createdAt,
         permissions: user.permissions || { canAddMilk: true, canEditMilk: true, canDeleteMilk: false, canCreditAccount: true },
         token
       }
@@ -92,7 +93,7 @@ export const getMe = async (req, res, next) => {
 // @access  Private
 export const updateProfile = async (req, res, next) => {
   try {
-    const { name, username, phone, dairyName, userCode } = req.body;
+    const { name, username, phone, dairyName, userCode, joiningDate } = req.body;
     const user = await User.findById(req.user._id);
 
     if (username && req.user.role === 'admin' && username.toLowerCase().trim() !== user.username) {
@@ -110,6 +111,7 @@ export const updateProfile = async (req, res, next) => {
     if (name) user.name = name;
     if (userCode !== undefined && req.user.role === 'admin') user.userCode = userCode.toUpperCase().trim();
     if (phone !== undefined) user.phone = phone;
+    if (joiningDate) user.joiningDate = new Date(joiningDate);
     
     if (dairyName !== undefined && req.user.role === 'admin') {
       const trimmedDairyName = dairyName.trim();

@@ -61,12 +61,13 @@ export const addMilkEntry = async (req, res, next) => {
 
     const userDoc = await User.findById(targetUser);
 
-    if (userDoc && userDoc.createdAt) {
-      const userStartDateStr = userDoc.createdAt.toISOString().split('T')[0];
+    const effectiveStartDate = userDoc?.joiningDate || userDoc?.createdAt;
+    if (effectiveStartDate) {
+      const userStartDateStr = effectiveStartDate.toISOString().split('T')[0];
       if (date < userStartDateStr) {
         return res.status(400).json({
           success: false,
-          message: `Cannot record milk entry prior to user's account start date (${userStartDateStr}).`
+          message: `Cannot record milk entry prior to dairy joining date (${userStartDateStr}).`
         });
       }
     }
@@ -219,7 +220,20 @@ export const updateMilkEntry = async (req, res, next) => {
       }
     }
 
-    if (date) entry.date = date;
+    if (date) {
+      const userDoc = await User.findById(entry.user);
+      const effectiveStartDate = userDoc?.joiningDate || userDoc?.createdAt;
+      if (effectiveStartDate) {
+        const userStartDateStr = effectiveStartDate.toISOString().split('T')[0];
+        if (date < userStartDateStr) {
+          return res.status(400).json({
+            success: false,
+            message: `Cannot set milk entry date prior to dairy joining date (${userStartDateStr}).`
+          });
+        }
+      }
+      entry.date = date;
+    }
     if (session) entry.session = session.toLowerCase();
     if (dairyName !== undefined) entry.dairyName = dairyName.trim();
 

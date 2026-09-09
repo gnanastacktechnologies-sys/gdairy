@@ -5,12 +5,16 @@ import { useAuth } from '../context/AuthContext';
 
 const ProfilePage = () => {
   const { user, updateUserProfile, isAdmin, systemDairyName, updateSystemDairyName } = useAuth();
+  const todayStr = new Date().toISOString().split('T')[0];
 
   const [name, setName] = useState(user?.name || '');
   const [username, setUsername] = useState(user?.username || '');
   const [userCode, setUserCode] = useState(user?.userCode || (user?.role === 'admin' ? 'ADM-001' : 'FARM-001'));
   const [phone, setPhone] = useState(user?.phone || '');
   const [dairyName, setDairyName] = useState(systemDairyName || user?.dairyName || '');
+  const [joiningDate, setJoiningDate] = useState(
+    user?.joiningDate ? new Date(user.joiningDate).toISOString().split('T')[0] : (user?.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : todayStr)
+  );
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState(null);
 
@@ -33,6 +37,9 @@ const ProfilePage = () => {
       setUserCode(user.userCode || (user.role === 'admin' ? 'ADM-001' : 'FARM-001'));
       setPhone(user.phone || '');
       setDairyName(systemDairyName || user.dairyName || '');
+      setJoiningDate(
+        user.joiningDate ? new Date(user.joiningDate).toISOString().split('T')[0] : (user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : todayStr)
+      );
     }
   }, [user, systemDairyName]);
 
@@ -47,14 +54,12 @@ const ProfilePage = () => {
     }
   };
 
-
-
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setProfileMessage(null);
     setProfileSaving(true);
     try {
-      const payload = { name, phone };
+      const payload = { name, phone, joiningDate };
       if (isAdmin) {
         payload.username = username;
         payload.userCode = userCode;
@@ -221,6 +226,22 @@ const ProfilePage = () => {
               placeholder="e.g. 9876543210"
               className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-text-sub mb-1">
+              Dairy Joining Date *
+            </label>
+            <input
+              type="date"
+              value={joiningDate}
+              onChange={(e) => setJoiningDate(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40"
+              required
+            />
+            <p className="text-[11px] text-slate-400 mt-1">
+              Milk collection entries and billing start from this joining date onwards.
+            </p>
           </div>
         </div>
 

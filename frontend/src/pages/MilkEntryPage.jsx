@@ -21,9 +21,9 @@ const MilkEntryPage = () => {
   const todayStr = getTodayDateString();
   const [selectedDate, setSelectedDate] = useState(todayStr);
 
-  // User account creation date in YYYY-MM-DD format
-  const userCreatedDateStr = user?.createdAt
-    ? new Date(user.createdAt).toISOString().split('T')[0]
+  // User Dairy Joining Date in YYYY-MM-DD format
+  const userJoiningDateStr = (user?.joiningDate || user?.createdAt)
+    ? new Date(user?.joiningDate || user?.createdAt).toISOString().split('T')[0]
     : todayStr;
   const [session, setSession] = useState('morning');
   const [litres, setLitres] = useState('');
@@ -300,9 +300,9 @@ const MilkEntryPage = () => {
               const isFullCompleted = hasMorning && hasEvening;
               const isHalfCompleted = (hasMorning && !hasEvening) || (!hasMorning && hasEvening);
               
-              // Only mark as missed if the date is on/after user account creation AND before today AND has 0 entries
-              const isMissed = dateStr < todayStr && dateStr >= userCreatedDateStr && dayEntries.length === 0;
-              const isBeforeCreation = dateStr < userCreatedDateStr && dayEntries.length === 0;
+              // Only mark as missed if the date is on/after user dairy joining date AND before today AND has 0 entries
+              const isMissed = dateStr < todayStr && dateStr >= userJoiningDateStr && dayEntries.length === 0;
+              const isBeforeCreation = dateStr < userJoiningDateStr && dayEntries.length === 0;
 
               // Color styles calculation
               let colorStyle = '';
@@ -390,12 +390,16 @@ const MilkEntryPage = () => {
                   <input
                     type="date"
                     value={selectedDate}
+                    min={userJoiningDateStr}
                     max={todayStr}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-white transition-all"
                     required
                   />
                 </div>
+                <p className="text-[11px] text-slate-400 font-medium mt-1">
+                  Milk collection starts from your Dairy Joining Date ({userJoiningDateStr}).
+                </p>
               </div>
 
               {/* Session Toggle Buttons */}

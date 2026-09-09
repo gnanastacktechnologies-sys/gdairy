@@ -25,6 +25,7 @@ const UsersPage = () => {
     phone: '',
     userCode: '',
     dairyName: '',
+    joiningDate: todayStr,
     createdAt: todayStr,
     status: 'active',
     permissions: { canAddMilk: true, canEditMilk: true, canDeleteMilk: false, canCreditAccount: true }
@@ -41,6 +42,7 @@ const UsersPage = () => {
     phone: '',
     userCode: '',
     dairyName: '',
+    joiningDate: todayStr,
     createdAt: todayStr,
     status: 'active',
     permissions: { canAddMilk: true, canEditMilk: true, canDeleteMilk: false, canCreditAccount: true }
@@ -262,12 +264,12 @@ const UsersPage = () => {
       )
     },
     {
-      label: 'Account Start Date',
-      key: 'createdAt',
+      label: 'Dairy Joining Date',
+      key: 'joiningDate',
       sortable: true,
       render: (row) => (
         <span className="inline-flex items-center gap-1 font-semibold text-slate-700 text-xs bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">
-          📅 {formatDate(row.createdAt?.split('T')[0])}
+          📅 {formatDate(row.joiningDate ? row.joiningDate.split('T')[0] : row.createdAt?.split('T')[0])}
         </span>
       )
     },
@@ -285,6 +287,7 @@ const UsersPage = () => {
                 userCode: row.userCode || (row.role === 'admin' ? 'ADM-001' : 'FARM-001'),
                 phone: row.phone || '',
                 dairyName: row.dairyName || '',
+                joiningDate: row.joiningDate ? row.joiningDate.split('T')[0] : (row.createdAt ? row.createdAt.split('T')[0] : todayStr),
                 createdAt: row.createdAt ? row.createdAt.split('T')[0] : todayStr,
                 status: row.status,
                 permissions: row.permissions || { canAddMilk: true, canEditMilk: true, canDeleteMilk: false, canCreditAccount: true }
@@ -442,17 +445,17 @@ const UsersPage = () => {
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-text-sub mb-1">
-              Account Start Date (Created At) *
+              Dairy Joining Date *
             </label>
             <input
               type="date"
-              value={addForm.createdAt}
-              onChange={(e) => setAddForm({ ...addForm, createdAt: e.target.value })}
+              value={addForm.joiningDate}
+              onChange={(e) => setAddForm({ ...addForm, joiningDate: e.target.value })}
               className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40"
               required
             />
             <p className="text-[11px] text-slate-400 mt-1">
-              User's collection records and report calculations will start from this date onwards.
+              Milk collection records for this user will start from this joining date onwards.
             </p>
           </div>
 
@@ -622,17 +625,17 @@ const UsersPage = () => {
 
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-text-sub mb-1">
-              Account Start Date (Created At) *
+              Dairy Joining Date *
             </label>
             <input
               type="date"
-              value={editForm.createdAt}
-              onChange={(e) => setEditForm({ ...editForm, createdAt: e.target.value })}
+              value={editForm.joiningDate}
+              onChange={(e) => setEditForm({ ...editForm, joiningDate: e.target.value })}
               className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40"
               required
             />
             <p className="text-[11px] text-slate-400 mt-1">
-              User's collection records and report calculations start from this date.
+              Milk collection records for this user start from this joining date.
             </p>
           </div>
 
