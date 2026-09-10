@@ -57,12 +57,7 @@ const seedAdmin = async () => {
       console.log('[GDairy Seed] Default retention settings created (3 Months)');
     }
 
-    // Clean up sample non-admin farmers/users and sample milk collection records
-    const deletedUsers = await User.deleteMany({ role: { $ne: 'admin' } });
-    const deletedRecords = await MilkEntry.deleteMany({});
-    console.log(`[GDairy Seed] Cleaned up sample records: ${deletedUsers.deletedCount} sample users & ${deletedRecords.deletedCount} milk records removed.`);
-
-    console.log('[GDairy Seed] Seeding completed successfully! Only Admin account exists in database.');
+    console.log('[GDairy Seed] Seeding check completed. Admin account and system settings verified.');
     process.exit(0);
   } catch (error) {
     console.error(`[GDairy Seed Error] ${error.message}`);
