@@ -25,11 +25,14 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check Endpoint
+// Health Check Endpoint (Used by Render & Keep-Alive self-pings)
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
+    status: 'healthy',
     message: 'GDairy Backend API is running smoothly',
+    uptimeSeconds: Math.floor(process.uptime()),
+    environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString()
   });
 });

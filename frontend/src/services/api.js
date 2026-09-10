@@ -16,6 +16,7 @@ const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 12000, // 12 second fast timeout for responsive network calls
   headers: {
     'Content-Type': 'application/json'
   }
@@ -33,10 +34,23 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor for Unauthorized handling
+// Response Interceptor for Unauthorized and Cold-Start Retry handling
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Retry once immediately on gateway timeout (502/503/504)
+    if (
+      error.response &&
+      (error.response.status === 502 || error.response.status === 503 || error.response.status === 504) &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+      console.warn('[API] Server connection retry triggered...');
+      return api(originalRequest);
+    }
+
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('gdairy_token');
       localStorage.removeItem('gdairy_user');

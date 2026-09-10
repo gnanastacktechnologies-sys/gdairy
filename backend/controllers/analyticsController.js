@@ -25,8 +25,7 @@ export const getDashboardStats = async (req, res, next) => {
       userMatch.user = new mongoose.Types.ObjectId(req.user._id);
     }
 
-    // 1. Today's metrics
-    const todayAggregation = await MilkEntry.aggregate([
+    const todayQuery = MilkEntry.aggregate([
       { $match: { ...userMatch, date: todayStr } },
       {
         $group: {
@@ -41,17 +40,7 @@ export const getDashboardStats = async (req, res, next) => {
       }
     ]);
 
-    const todayStats = todayAggregation[0] || {
-      totalLitres: 0,
-      totalAmount: 0,
-      morningLitres: 0,
-      morningAmount: 0,
-      eveningLitres: 0,
-      eveningAmount: 0
-    };
-
-    // 2. All time & Settlement metrics for user/admin
-    const allTimeAggregation = await MilkEntry.aggregate([
+    const allTimeQuery = MilkEntry.aggregate([
       { $match: userMatch },
       {
         $group: {
@@ -62,6 +51,27 @@ export const getDashboardStats = async (req, res, next) => {
         }
       }
     ]);
+
+    const isAdmin = req.user.role === 'admin';
+    const totalUsersQuery = isAdmin ? User.countDocuments({ role: 'user' }) : Promise.resolve(0);
+    const activeUsersQuery = isAdmin ? User.countDocuments({ role: 'user', status: 'active' }) : Promise.resolve(0);
+
+    // Execute queries in parallel for maximum performance
+    const [todayAggregation, allTimeAggregation, totalUsers, activeUsers] = await Promise.all([
+      todayQuery,
+      allTimeQuery,
+      totalUsersQuery,
+      activeUsersQuery
+    ]);
+
+    const todayStats = todayAggregation[0] || {
+      totalLitres: 0,
+      totalAmount: 0,
+      morningLitres: 0,
+      morningAmount: 0,
+      eveningLitres: 0,
+      eveningAmount: 0
+    };
 
     let totalLitresAll = 0;
     let totalAmountAll = 0;
@@ -86,21 +96,17 @@ export const getDashboardStats = async (req, res, next) => {
 
     const avgPricePerLitre = totalLitresAll > 0 ? roundTwo(totalAmountAll / totalLitresAll) : 0;
 
-    // 3. Admin specific stats
-    let adminStats = null;
-    if (req.user.role === 'admin') {
-      const totalUsers = await User.countDocuments({ role: 'user' });
-      const activeUsers = await User.countDocuments({ role: 'user', status: 'active' });
-      adminStats = {
-        totalUsers,
-        activeUsers,
-        totalMilkRecords: totalRecordsAll,
-        totalMilkQuantity: roundTwo(totalLitresAll),
-        totalAmount: roundTwo(totalAmountAll),
-        unpaidBalance: roundTwo(unpaidAmount),
-        creditedTotal: roundTwo(creditedAmount)
-      };
-    }
+    const adminStats = isAdmin
+      ? {
+          totalUsers,
+          activeUsers,
+          totalMilkRecords: totalRecordsAll,
+          totalMilkQuantity: roundTwo(totalLitresAll),
+          totalAmount: roundTwo(totalAmountAll),
+          unpaidBalance: roundTwo(unpaidAmount),
+          creditedTotal: roundTwo(creditedAmount)
+        }
+      : null;
 
     res.status(200).json({
       success: true,

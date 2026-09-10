@@ -9,7 +9,12 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const [token, setToken] = useState(() => localStorage.getItem('gdairy_token'));
-  const [loading, setLoading] = useState(true);
+  // If user and token already exist in localStorage, load UI instantly without blocking render
+  const [loading, setLoading] = useState(() => {
+    const savedUser = localStorage.getItem('gdairy_user');
+    const savedToken = localStorage.getItem('gdairy_token');
+    return !(savedUser && savedToken);
+  });
 
   useEffect(() => {
     const checkLoggedInUser = async () => {
