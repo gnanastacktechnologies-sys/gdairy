@@ -78,7 +78,7 @@ GDairy/
    ```
 2. Create `.env` in `backend/` (or copy from root `.env.example`):
    ```env
-   PORT=5000
+   PORT=17202
    MONGO_URI=mongodb://localhost:27017/gdairy
    JWT_SECRET=gdairy_jwt_secret_key_super_secure_2026
    NODE_ENV=development
@@ -125,10 +125,10 @@ To test the application directly on your physical mobile phone connected to the 
 3. **Configure Frontend Environment**:
    In `frontend/.env`, set `VITE_API_URL` to your computer's local IP address:
    ```env
-   VITE_API_URL=http://192.168.1.5:5000/api
+   VITE_API_URL=http://192.168.1.5:17202/api
    ```
 4. **Start Servers**:
-   - Backend listens on `0.0.0.0:5000` automatically.
+   - Backend listens on `0.0.0.0:17202` automatically.
    - Frontend Vite server runs with `--host 0.0.0.0`.
 5. **Open on Mobile**:
    On your phone's browser, visit:

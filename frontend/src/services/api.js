@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
     return `${window.location.origin}/api`;
   }
   const hostname = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost';
-  return `http://${hostname}:5000/api`;
+  return `http://${hostname}:17202/api`;
 };
 
 const API_BASE_URL = getApiBaseUrl();

@@ -2,7 +2,7 @@ import app from './app.js';
 import { connectDB } from './config/db.js';
 import { initKeepAlive } from './utils/keepAlive.js';
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 17202;
 const HOST = '0.0.0.0';
 
 // Connect to MongoDB and start server
