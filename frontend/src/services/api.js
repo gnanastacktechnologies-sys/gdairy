@@ -6,7 +6,7 @@ const getApiBaseUrl = () => {
     return envUrl;
   }
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return `${window.location.origin}/api`;
+    return 'https://gdairy-1zu5.vercel.app/api';
   }
   const hostname = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost';
   return `http://${hostname}:17202/api`;
