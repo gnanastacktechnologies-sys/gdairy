@@ -235,3 +235,54 @@ export const forgotPassword = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Seed Initial Admin and Default Settings (Useful for Vercel deployment)
+// @route   GET /api/auth/seed or POST /api/auth/seed
+// @access  Public
+export const seedDatabase = async (req, res, next) => {
+  try {
+    const adminUsername = (process.env.ADMIN_USERNAME || 'Gnanasekaran').toLowerCase().trim();
+    const adminPassword = process.env.ADMIN_PASSWORD || 'Gnana123@';
+    const adminName = process.env.ADMIN_NAME || 'Gnanasekaran';
+
+    let admin = await User.findOne({ role: 'admin' }) || await User.findOne({ username: adminUsername });
+
+    if (admin) {
+      admin.name = adminName;
+      admin.username = adminUsername;
+      admin.role = 'admin';
+      admin.status = 'active';
+      admin.userCode = admin.userCode || 'ADM-001';
+      admin.password = adminPassword;
+      await admin.save();
+    } else {
+      admin = await User.create({
+        name: adminName,
+        username: adminUsername,
+        password: adminPassword,
+        userCode: 'ADM-001',
+        role: 'admin',
+        status: 'active',
+        phone: '9876543210'
+      });
+    }
+
+    let settings = await Settings.findOne();
+    if (!settings) {
+      await Settings.create({
+        retentionPeriod: 3,
+        retentionUnit: 'months',
+        updatedBy: admin._id
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Database seeded successfully! Admin account ready.',
+      adminUsername
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
