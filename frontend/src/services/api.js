@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const getApiBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (envUrl) {
+  if (envUrl && !envUrl.includes('onrender.com')) {
     return envUrl;
   }
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
